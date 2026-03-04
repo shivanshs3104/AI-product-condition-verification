@@ -4,6 +4,8 @@ from werkzeug.utils import secure_filename
 from db import get_connection, init_db
 from image_utils import generate_image_hash
 from damage_analyzer import analyze_damage
+from utils.pricing import calculate_price
+
 
 # Create Flask app
 app = Flask(__name__)
@@ -86,11 +88,9 @@ def upload_image():
     # Insert new record
     # Analyze damage
     damage_type, severity_score, explanation = analyze_damage(save_path)
+    base_price = 10000  # temporary example price
+    final_price = calculate_price(base_price, severity_score)
 
-    base_price = 10000
-    depreciation_percentage = severity_score * 5  # 5% per severity level
-    final_price = base_price * (1 - depreciation_percentage / 100)
-    final_price = max(final_price, base_price * 0.4)  # never below 40%
 
     cursor.execute("""
     INSERT INTO products (
@@ -122,7 +122,8 @@ def upload_image():
     "image_hash": image_hash,
     "damage_type": damage_type,
     "severity_score": severity_score,
-    "final_price": final_price,
+    "base_price": base_price,
+    "recommended_price": final_price,
     "explanation": explanation
 }
 

@@ -5,6 +5,7 @@ from db import get_connection, init_db
 from image_utils import generate_image_hash
 from damage_analyzer import analyze_damage
 from utils.pricing import calculate_price
+from damage_detector_yolo import detect_damage
 
 
 # Create Flask app
@@ -87,7 +88,7 @@ def upload_image():
 
     # Insert new record
     # Analyze damage
-    damage_type, severity_score, explanation = analyze_damage(save_path)
+    damage_type, severity_score, explanation, detections = detect_damage(save_path)
     base_price = 10000  # temporary example price
     final_price = calculate_price(base_price, severity_score)
 
@@ -122,6 +123,7 @@ def upload_image():
     "image_hash": image_hash,
     "damage_type": damage_type,
     "severity_score": severity_score,
+    "detections": detections,
     "base_price": base_price,
     "recommended_price": final_price,
     "explanation": explanation

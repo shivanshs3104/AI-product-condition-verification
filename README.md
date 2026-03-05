@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TrustLens AI
 
 AI-Based Product Condition Verification System
@@ -57,3 +58,6 @@ pip install -r requirements.txt
 Run backend:
 
 python app.py
+=======
+# AI-product-condition-verification
+>>>>>>> 5bdd81a03b34f47801a87ceb99ad97bd9d4693ea

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from db import get_connection, init_db
 from image_utils import generate_image_hash
@@ -9,7 +9,10 @@ from damage_detector_yolo import detect_damage
 
 
 # Create Flask app
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIST_DIR = os.path.join(BASE_DIR, "..", "frontend", "dist")
+
+app = Flask(__name__, static_folder=FRONTEND_DIST_DIR, static_url_path="")
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
@@ -44,6 +47,23 @@ def health():
         "status": "ok",
         "message": "TrustLens AI backend is running"
     })
+
+
+# =========================
+# Frontend Static Serving
+# =========================
+@app.route("/app", defaults={"path": ""}, methods=["GET"])
+@app.route("/app/<path:path>", methods=["GET"])
+def serve_frontend(path):
+    if not os.path.isdir(FRONTEND_DIST_DIR):
+        return {
+            "error": "Frontend build not found. Run 'npm run build' inside frontend/."
+        }, 404
+
+    if path and os.path.exists(os.path.join(FRONTEND_DIST_DIR, path)):
+        return send_from_directory(FRONTEND_DIST_DIR, path)
+
+    return send_from_directory(FRONTEND_DIST_DIR, "index.html")
 
 
 # =========================
